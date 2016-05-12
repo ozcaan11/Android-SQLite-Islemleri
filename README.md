@@ -1,7 +1,7 @@
 # Android SQLite ile kitap uygulaması 
 Android ile sqllite kullanımını gösteren küçük bir örnek
 
-Bu uygulamada
+Bu uygulamada;
 > (CREATE)  [Veritabanına yeni kitap ekleme,](app/src/main/java/com/ozcaan11/l50/sqlkitapbilgileri/Database.java#L88)        
 
 > (READ)    [Veritabanından bütün kitapları çekme,](app/src/main/java/com/ozcaan11/l50/sqlkitapbilgileri/Database.java#L51)  
