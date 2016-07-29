@@ -1,0 +1,230 @@
+Şandroid de sqllite ile çalışırken bazı hileler var onları yaparsan işin bayağı kolaylaşır . Diyelim veritabanına id adı ve soyadı olan bi öğrenci tablosu ekleyecen
+int id PK
+text ad
+text soyad
+
+bunlar senin tablon olacak
+
+Öncelikle şunu kesinlikle hep böyle yapmanı tavsiye ederim veritabanı işlemlerini hep tek bi class ta yap . Şöyleki insert, select , update, delete işlemlerini tek bir class ta yap yani eklemeyi bir activititede silmeyi başk birinde yapma kafan karışır
+Bide object oriented olarak yapman senin işini çok kolaylaştıracaktır yani şöyle
+bi tane ogrenci.java classın olsun verileri clasa ata onları ordan veritabanına kaydet veritabanından çekip classa ata ordan activitede kullan
+
+
+==========================================================================================================================================================
+
+Ogrenci.java
+
+public class Ogrenci {
+    private int id;
+    private String ad;
+    private String soyad;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getAd() {
+        return ad;
+    }
+
+    public void setAd(String ad) {
+        this.ad = ad;
+    }
+
+    public String getSoyad() {
+        return soyad;
+    }
+
+    public void setSoyad(String soyad) {
+        this.soyad = soyad;
+    }
+}
+
+==========================================================================================================================================================
+
+
+Sonra veritabanı işlemlerini yapacak bir Veritabani.java classı oluştur ve bütün veritabanı işlemlerini bu class üzerinden yap
+
+Veritabani.java
+
+public class Veritabani extends SQLiteOpenHelper {
+
+    public Veritabani(Context context) {
+        super(context, "ogrenciDB", null, 1);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        String CREATE_OGR_TABLE = "CREATE TABLE tbl_ogrenci (id INTEGER PRIMARY KEY AUTOINCREMENT, ad TEXT, soyad TEXT)";
+        sqLiteDatabase.execSQL(CREATE_OGR_TABLE);
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS tbl_ogrenci");
+        onCreate(sqLiteDatabase);
+    }
+
+    public List<Ogrenci> tumOgrencileriGetir(){
+        List<Ogrenci> ogrenciListesi = new ArrayList<>();
+
+        String select = "SELECT * FROM tbl_ogrenci";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(select, null);
+
+        if (cursor.moveToFirst())
+            do {
+                Ogrenci ogr = new Ogrenci();
+                ogr.setId(Integer.parseInt(cursor.getString(0)));
+                ogr.setAd(cursor.getString(1));
+                ogr.setSoyad(cursor.getString(2));
+
+                ogrenciListesi.add(ogr);
+            } while (cursor.moveToNext());
+        db.close();
+        cursor.close();
+        return ogrenciListesi;
+    }
+
+    public Ogrenci tekOgrenciGetir(int id){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String select = "SELECT * FROM tbl_ogrenci WHERE id = "+id;
+        Cursor cursor = db.rawQuery(select, null);
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        Ogrenci ogr = new Ogrenci();
+
+        ogr.setId(Integer.parseInt(cursor.getString(0)));
+        ogr.setAd(cursor.getString(1));
+        ogr.setSoyad(cursor.getString(2));
+
+        db.close();
+        cursor.close();
+
+        return ogr;
+    }
+
+    public void ogrenciEkle(Ogrenci ogr){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put("ad",ogr.getAd());
+        values.put("soyad",ogr.getSoyad());
+
+        db.insert("tbl_ogrenci", null, values);
+
+        db.close();
+    }
+
+    public void ogrenciSil(Ogrenci ogr){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("tbl_ogrenci", " id = ?", new String[]{String.valueOf(ogr.getId())});
+        db.close();
+    }
+
+    public void ogrenciDuzenle(Ogrenci ogr){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put("ad",ogr.getAd());
+        values.put("soyad",ogr.getSoyad());
+
+        db.update("tbl_ogrenci", values, "id = ?", new String[]{String.valueOf(ogr.getId())});
+        db.close();
+
+    }
+}
+
+
+
+
+Veritabanı işlemlerimiz bitti artık işin en kolay kısmı kaldı 
+==========================================================================================================================================================
+
+
+TümKitaplarActivity
+
+onCreate nin veya herhangi bi yere yaz bu kodları
+
+		listView = (ListView) findViewById(R.id.listView);
+
+        Veritabani veritabani = new Veritabani(getApplicationContext());
+
+        List<Ogrenci> ogrenciList = veritabani.tumOgrencileriGetir();
+
+        ArrayAdapter<Ogrenci> adapter = new ArrayAdapter<>(getApplicationContext(),android.R.layout.simple_list_item_1,ogrenciList);
+        listView.setAdapter(adapter);
+
+
+
+OgrenciEkleActivity
+
+	edt_ad = (EditText) findViewById(R.id.editText_ad);
+    edt_soyad = (EditText) findViewById(R.id.editText_soyad);
+
+    ekle = (Button) findViewById(R.id.btn_ekle);
+
+    ekle.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+
+            Veritabani veritabani = new Veritabani(getApplicationContext());
+            Ogrenci ogrenci = new Ogrenci();
+            ogrenci.setAd(edt_ad.getText().toString());
+            ogrenci.setSoyad(edt_soyad.getText().toString());
+
+            veritabani.ogrenciEkle(ogrenci);
+
+        }
+    });
+
+
+OgrenciDuzenleActivity
+
+	edt_ad = (EditText) findViewById(R.id.editText_ad);
+    edt_soyad = (EditText) findViewById(R.id.editText_soyad);
+
+    duzenle = (Button) findViewById(R.id.btn_duzenle);
+
+	Veritabani veritabani = new Veritabani(getApplicationContext());
+    int id = 1;
+    Ogrenci ogrenci = veritabani.tekOgrenciGetir(id);
+    edt_ad.setText(ogrenci.getAd());
+    edt_soyad.setText(ogrenci.getSoyad());
+
+    duzenle.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+
+            Veritabani veritabani = new Veritabani(getApplicationContext());
+            Ogrenci ogrenci = new Ogrenci();
+            ogrenci.setAd(edt_ad.getText().toString());
+            ogrenci.setSoyad(edt_soyad.getText().toString());
+
+            veritabani.ogrenciDuzenle(ogrenci);
+
+        }
+    });
+
+
+
+OgrenciSilActivity
+
+        btnSil.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+			    int id = 1;
+			    Veritabani veritabani = new Veritabani(getApplicationContext());
+
+			    Ogrenci ogrenci = new Ogrenci();
+			    
+			    ogrenci.setId(id);
+			    veritabani.ogrenciSil(ogrenci);
+            }
+        });
