@@ -1,4 +1,4 @@
-Şandroid de sqllite ile çalışırken bazı hileler var onları yaparsan işin bayağı kolaylaşır . Diyelim veritabanına id adı ve soyadı olan bi öğrenci tablosu ekleyecen
+Android de sqllite ile çalışırken bazı hileler var onları yaparsan işin bayağı kolaylaşır . Diyelim veritabanına id adı ve soyadı olan bi öğrenci tablosu ekleyecen
 int id PK
 text ad
 text soyad
