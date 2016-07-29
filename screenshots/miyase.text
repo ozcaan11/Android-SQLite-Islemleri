@@ -5,7 +5,8 @@ text soyad
 
 bunlar senin tablon olacak
 
-Öncelikle şunu kesinlikle hep böyle yapmanı tavsiye ederim veritabanı işlemlerini hep tek bi class ta yap . Şöyleki insert, select , update, delete işlemlerini tek bir class ta yap yani eklemeyi bir activititede silmeyi başk birinde yapma kafan karışır
+Öncelikle şunu kesinlikle hep böyle yapmanı tavsiye ederim veritabanı işlemlerini hep tek bi class ta yap . Şöyleki insert, select , update, delete işlemlerini 
+tek bir class ta yap yani eklemeyi bir activititede silmeyi başk birinde yapma kafan karışır
 Bide object oriented olarak yapman senin işini çok kolaylaştıracaktır yani şöyle
 bi tane ogrenci.java classın olsun verileri clasa ata onları ordan veritabanına kaydet veritabanından çekip classa ata ordan activitede kullan
 
